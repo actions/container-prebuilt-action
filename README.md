@@ -180,6 +180,20 @@ For information about versioning your action, see
 [Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
 in the GitHub Actions toolkit.
 
+## Releasing Versions
+
+By default, the [`cd.yml` workflow](./.github/workflows/cd.yml) in this
+repository is configured to release a new version of the action any time a pull
+request is merged into the default branch (`main`). In order to prevent existing
+versions from being overwritten, the
+[`version-check.yml` workflow](./.github/workflows/version-check.yml) can be
+used as a
+[required status check](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches#require-status-checks-before-merging)
+in your branch protection rules.
+
+As part of the pull request, make sure to update the
+[`.version` file](./.version) to a new [Semantic Version](https://semver.org/).
+
 ## Usage
 
 After testing, you can create version tag(s) that developers can use to
