@@ -1,0 +1,25 @@
+name: Example Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test the Action
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run the Container Action
+        id: run
+        uses: actions/container-prebuilt-action@latest
+        with:
+          who-to-greet: Mona Lisa Octocat
+
+      - name: Print Output
+        id: output
+        run: echo "${{ steps.test-action.outputs.greeting }}"

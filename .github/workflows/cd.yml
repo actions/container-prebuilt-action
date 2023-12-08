@@ -1,0 +1,147 @@
+# When a PR is merged, or when run manually, this workflow will create a
+# release and publish the container image to the GitHub Container Registry. Both
+# will be labeled with the version specified in the manifest file.
+name: Continuous Delivery
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  CONTAINER_REGISTRY: ghcr.io
+  CONTAINER_REGISTRY_USERNAME: ${{ github.actor  }}
+  CONTAINER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+  MANIFEST_PATH: .version
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    # Ignore Dependabot pull requests.
+    if: |
+      (github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.merged == true) &&
+      github.actor != 'dependabot[bot]'
+
+    outputs:
+      # Semantic version to use for tagging container images.
+      # E.g. `1.2.3` or `1.2.3-alpha.4`
+      version: ${{ steps.tag.outputs.version }}
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: main
+
+      - name: Tag Version
+        id: tag
+        uses: issue-ops/semver@v0.3.2
+        with:
+          manifest-path: ${{ env.MANIFEST_PATH }}
+          ref: main
+          workspace: ${{ github.workspace }}
+
+      - name: Create Release
+        id: release
+        uses: issue-ops/releaser@v0.1.3
+        with:
+          tag: v${{ steps.tag.outputs.version }}
+
+  container:
+    name: Publish Container Image
+    runs-on: ubuntu-latest
+
+    needs: release
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: main
+
+      - name: Build, Scan, and Publish Container Image
+        id: build-scan-publish
+        uses: usps/fast-track-container-image-action@v1.0.0
+        with:
+          # Container registry details
+          registry: ${{ env.CONTAINER_REGISTRY }}
+          username: ${{ env.CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ env.CONTAINER_REGISTRY_PASSWORD }}
+
+          # Other inputs
+          checkout: true
+          manifest-path: ${{ env.MANIFEST_PATH }}
+          version: ${{ needs.release.outputs.version }}
+
+    # Create the list of image tags that will be published. If a prerelease is
+    # being published (e.g. `1.2.3-alpha.4`), only the prerelease tag will be
+    # published (`v1.2.3-alpha.4`). Otherwise, the following tags will be
+    # published:
+    # - `latest`
+    # - `v1.2.3`
+    # - `v1.2`
+    # - `v1`
+    - name: Set Image Tags
+      id: tags
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const version = '${{ needs.release.outputs.version }}'
+
+          // Check if prerelease (e.g. 1.2.3-alpha.4)
+          if (version.includes('-')) {
+            // Only output the prerelease tag
+            core.setOutput('tags', `type=raw,value=v${version}`)
+          } else {
+            // Output all the tags
+            let tags = [
+              'type=raw,value=latest',
+              `type=raw,value=v${version}`,
+              `type=raw,value=v${version.split('.').slice(0, 2).join('.')}`,
+              `type=raw,value=v${version.split('.')[0]}`
+            ]
+            core.setOutput('tags', tags.join('\n'))
+          }
+
+    # Get metadata to apply to image
+    - name: Extract Metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.CONTAINER_REGISTRY }}/${{ github.repository }}
+        tags: ${{ steps.tags.outputs.tags }}
+
+    # Authenticate to the container registry
+    - name: Authenticate to Container Registry
+      id: login
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.CONTAINER_REGISTRY }}
+        username: ${{ env.CONTAINER_REGISTRY_USERNAME }}
+        password: ${{ env.CONTAINER_REGISTRY_PASSWORD }}
+
+    # Publish the container image
+    - name: Publish Container Image
+      id: publish
+      uses: docker/build-push-action@v5
+      env:
+        LABELS: ${{ steps.meta.outputs.labels }}
+        TAGS: ${{ steps.meta.outputs.tags }}
+      with:
+        labels: ${{ env.LABELS }}
+        push: true
+        tags: ${{ env.TAGS }}
