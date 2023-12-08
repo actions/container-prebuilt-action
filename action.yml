@@ -17,6 +17,6 @@ outputs:
 # Update the image repository and tag below.
 runs:
   using: docker
-  image: docker://ghcr.io/actions/container-prebuilt-action:latest
+  image: docker://ghcr.io/actions/container-prebuilt-action:v0.1.0
   env:
     INPUT_WHO_TO_GREET: ${{ inputs.who-to-greet }}
