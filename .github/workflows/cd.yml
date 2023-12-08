@@ -28,9 +28,9 @@ jobs:
 
     # Ignore Dependabot pull requests.
     if: |
-      (github.event_name == 'workflow_dispatch' ||
-      github.event.pull_request.merged == true) &&
-      github.actor != 'dependabot[bot]'
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+      github.event.pull_request.user.login != 'dependabot[bot]')
 
     outputs:
       # Semantic version to use for tagging container images.
