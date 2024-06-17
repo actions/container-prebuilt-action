@@ -123,7 +123,7 @@ jobs:
       # Publish the container image
       - name: Publish Container Image
         id: publish
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         env:
           LABELS: ${{ steps.meta.outputs.labels }}
           TAGS: ${{ steps.meta.outputs.tags }}
