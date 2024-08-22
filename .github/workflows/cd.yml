@@ -15,27 +15,22 @@ env:
   CONTAINER_REGISTRY: ghcr.io
   CONTAINER_REGISTRY_USERNAME: ${{ github.actor  }}
   CONTAINER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-  MANIFEST_PATH: .version
+  MANIFEST_PATH: action.yml
 
 permissions:
   contents: write
   packages: write
 
 jobs:
-  release:
-    name: Create Release
+  publish:
+    name: Publish Container Image
     runs-on: ubuntu-latest
 
     # Ignore Dependabot pull requests.
     if: |
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.merged == true &&
-      github.event.pull_request.user.login != 'dependabot[bot]')
-
-    outputs:
-      # Semantic version to use for tagging container images.
-      # E.g. `1.2.3` or `1.2.3-alpha.4`
-      version: ${{ steps.tag.outputs.version }}
+      startsWith(github.head_ref, 'dependabot/') == false)
 
     steps:
       - name: Checkout
@@ -45,33 +40,14 @@ jobs:
           fetch-tags: true
           ref: main
 
-      - name: Tag Version
-        id: tag
-        uses: issue-ops/semver@v2.0.0
+      - name: Check Version
+        id: version
+        uses: issue-ops/semver@v2
         with:
+          check-only: true
           manifest-path: ${{ env.MANIFEST_PATH }}
           ref: main
           workspace: ${{ github.workspace }}
-
-      - name: Create Release
-        id: release
-        uses: issue-ops/releaser@v2.0.0
-        with:
-          tag: v${{ steps.tag.outputs.version }}
-
-  publish:
-    name: Publish Container Image
-    runs-on: ubuntu-latest
-
-    needs: release
-
-    steps:
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-          ref: main
 
       # Create the list of image tags that will be published. If a prerelease is
       # being published (e.g. `1.2.3-alpha.4`), only the prerelease tag will be
@@ -86,7 +62,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const version = '${{ needs.release.outputs.version }}'
+            const version = '${{ steps.version.outputs.version }}'
 
             // Check if prerelease (e.g. 1.2.3-alpha.4)
             if (version.includes('-')) {
@@ -131,3 +107,9 @@ jobs:
           labels: ${{ env.LABELS }}
           push: true
           tags: ${{ env.TAGS }}
+
+      - name: Create Release
+        id: release
+        uses: issue-ops/releaser@v2
+        with:
+          tag: v${{ steps.version.outputs.version }}
