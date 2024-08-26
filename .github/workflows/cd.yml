@@ -47,7 +47,7 @@ jobs:
 
       - name: Tag Version
         id: tag
-        uses: issue-ops/semver@v2.0.0
+        uses: issue-ops/semver@v2.2.2
         with:
           manifest-path: ${{ env.MANIFEST_PATH }}
           ref: main
