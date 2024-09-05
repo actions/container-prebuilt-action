@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Run the Container Action
         id: run
-        uses: actions/container-prebuilt-action@v0.1.0
+        uses: actions/container-prebuilt-action@v0.2.0
         with:
           who-to-greet: Mona Lisa Octocat
 
