@@ -1,8 +1,10 @@
-# Container Prebuilt Action Template
+# Create a Container Prebuilt Action
 
 [![GitHub Super-Linter](https://github.com/actions/container-prebuilt-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
+[![Check dist/](https://github.com/actions/container-prebuilt-action/actions/workflows/check-dist.yml/badge.svg)](https://github.com/actions/container-prebuilt-action/actions/workflows/check-dist.yml)
 ![CI](https://github.com/actions/container-prebuilt-action/actions/workflows/ci.yml/badge.svg)
-![CD](https://github.com/actions/container-prebuilt-action/actions/workflows/cd.yml/badge.svg)
+[![CodeQL](https://github.com/actions/container-prebuilt-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/actions/container-prebuilt-action/actions/workflows/codeql-analysis.yml)
+[![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
 Use this template to bootstrap the creation of a container action. :rocket:
 
@@ -177,7 +179,7 @@ So, what are you waiting for? Go ahead and start customizing your action!
 Your action is now published! :rocket:
 
 For information about versioning your action, see
-[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
+[Versioning](https://github.com/actions/toolkit/blob/main/docs/action-versioning.md)
 in the GitHub Actions toolkit.
 
 ## Releasing Versions
@@ -198,7 +200,7 @@ As part of the pull request, make sure to update the
 
 After testing, you can create version tag(s) that developers can use to
 reference different stable versions of your action. For more information, see
-[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
+[Versioning](https://github.com/actions/toolkit/blob/main/docs/action-versioning.md)
 in the GitHub Actions toolkit.
 
 To include the action in a workflow in another repository, you can use the
@@ -209,7 +211,7 @@ hash.
 steps:
   - name: Checkout
     id: checkout
-    uses: actions/checkout@v3
+    uses: actions/checkout@v4
 
   - name: Test Local Action
     id: test-action
