@@ -1,10 +1,7 @@
 # Create a Container Prebuilt Action
 
 [![GitHub Super-Linter](https://github.com/actions/container-prebuilt-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
-[![Check dist/](https://github.com/actions/container-prebuilt-action/actions/workflows/check-dist.yml/badge.svg)](https://github.com/actions/container-prebuilt-action/actions/workflows/check-dist.yml)
-![CI](https://github.com/actions/container-prebuilt-action/actions/workflows/ci.yml/badge.svg)
-[![CodeQL](https://github.com/actions/container-prebuilt-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/actions/container-prebuilt-action/actions/workflows/codeql-analysis.yml)
-[![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
+![Continuous Integration](https://github.com/actions/container-prebuilt-action/actions/workflows/ci.yml/badge.svg)
 
 Use this template to bootstrap the creation of a container action. :rocket:
 
