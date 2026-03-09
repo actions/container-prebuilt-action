@@ -82,7 +82,7 @@ jobs:
       # Get metadata to apply to image
       - name: Extract Metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.CONTAINER_REGISTRY }}/${{ github.repository }}
           tags: ${{ steps.tags.outputs.tags }}
