@@ -90,7 +90,7 @@ jobs:
       # Authenticate to the container registry
       - name: Authenticate to Container Registry
         id: login
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.CONTAINER_REGISTRY }}
           username: ${{ env.CONTAINER_REGISTRY_USERNAME }}
